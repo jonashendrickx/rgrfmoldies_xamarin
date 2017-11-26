@@ -27,5 +27,21 @@
             android:id="@+id/logoImageView"
             android:src="@drawable/header"
             android:layout_weight="0.75" />
+        <TextView
+            android:id="@+id/artistTextView"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:textSize="@dimen/playlist_textSize"
+            android:gravity="center"
+            android:textColor="@color/oldies_yellow" />
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:textSize="@dimen/playlist_textSize"
+            android:gravity="center"
+            android:textColor="@color/oldies_yellow" />
     </LinearLayout>
 </RelativeLayout>

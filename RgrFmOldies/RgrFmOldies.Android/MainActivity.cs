@@ -7,21 +7,26 @@ using RgrFmOldies.Droid.Services;
 using Android.Support.V4.Content;
 using Android.Content.PM;
 using RgrFmOldies.Droid.Common;
+using System.Timers;
+using System.Threading.Tasks;
+using RgrFmOldies.Droid.Background;
+using RgrFmOldies.Droid.Models;
+using System;
 
 namespace RgrFmOldies.Droid
 {
 	[Activity (Label = "RGR Oldies", MainLauncher = true, Icon = "@drawable/icon", ConfigurationChanges = ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
 	public class MainActivity : Activity, IServiceConnection, View.IOnClickListener
     {
+        private Timer _timer;
         private bool _isBound;
         private MusicPlayerService _musicPlayerService;
 
         private MusicPlayerBroadCastReceiver _broadcastReceiver = new MusicPlayerBroadCastReceiver();
 
         private ImageButton _btnPlay;
-        private TextView _textViewSong1;
-        private TextView _textViewSong2;
-        private TextView _textViewSong3;
+        private TextView _textViewArtist;
+        private TextView _textViewTitle;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -32,6 +37,9 @@ namespace RgrFmOldies.Droid
 
             _btnPlay = (ImageButton)FindViewById(Resource.Id.playButton);
             _btnPlay.SetOnClickListener(this);
+
+            _textViewArtist = (TextView)FindViewById(Resource.Id.artistTextView);
+            _textViewTitle = (TextView)FindViewById(Resource.Id.titleTextView);
 
             DoBindService();
             InitServiceListener();
@@ -61,17 +69,20 @@ namespace RgrFmOldies.Droid
         protected override void OnPause()
         {
             base.OnPause();
+            _timer = null;
         }
 
         protected override void OnResume()
         {
             base.OnResume();
             _broadcastReceiver._activity = this;
+            StartPlaylistRefresh();
         }
 
         protected override void OnStop()
         {
             base.OnResume();
+            _timer = null;
         }
 
         private void InitServiceListener()
@@ -122,6 +133,35 @@ namespace RgrFmOldies.Droid
                     _musicPlayerService.Stop();
                 }
             }
+        }
+
+        private async Task OnTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            if (_timer != null) _timer.Interval = 60000;
+            PlaylistUpdaterTask task = new PlaylistUpdaterTask();
+            task.Execute();
+            var result = await task.GetResult();
+            OnTaskComplete(result);
+        }
+
+        public void StartPlaylistRefresh()
+        {
+            if (_timer == null)
+            {
+                _timer = new Timer { Interval = 1000 };
+                _timer.Elapsed += async (s, e) => await OnTimedEvent(s, e);
+            }
+            _timer.Enabled = true;
+        }
+
+        public void OnTaskComplete(PlaylistItem playlist)
+        {
+            if (playlist == null) return;
+            RunOnUiThread(() =>
+            {
+                _textViewArtist.Text = playlist.Artist;
+                _textViewTitle.Text = playlist.Title;
+            });
         }
     }
 }
