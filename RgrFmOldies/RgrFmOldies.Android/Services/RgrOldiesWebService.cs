@@ -17,6 +17,7 @@ namespace RgrFmOldies.Droid.Services
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("http://oldiesradiorgr.be/scripts/gplaylist.php"));
                 request.Method = "GET";
+                request.UserAgent = "RGR Oldies (Android)";
                 
                 using (var response = await request.GetResponseAsync())
                 {
@@ -27,7 +28,7 @@ namespace RgrFmOldies.Droid.Services
                         {
                             htmlString = reader.ReadToEnd();
                         }
-                        return null;
+
                         var playlistItem = new PlaylistItem();
 
                         var artistIndex = htmlString.IndexOf(ArtistIdentifier) + ArtistIdentifier.Length;

@@ -137,7 +137,8 @@ namespace RgrFmOldies.Droid
 
         private async Task OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            if (_timer != null) _timer.Interval = 60000;
+            var timer = (Timer)sender;
+            timer.Interval = 60000;
             PlaylistUpdaterTask task = new PlaylistUpdaterTask();
             task.Execute();
             var result = await task.GetResult();
