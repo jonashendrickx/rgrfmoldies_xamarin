@@ -29,11 +29,6 @@ namespace RgrFmOldies.Droid.Services
             _intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
         }
 
-        private object OnCallStateChanged(object state, object incomingNumber)
-        {
-            throw new NotImplementedException();
-        }
-
         public override StartCommandResult OnStartCommand(Intent intent, StartCommandFlags flags, int startId)
         {
             return StartCommandResult.Sticky;
@@ -42,8 +37,10 @@ namespace RgrFmOldies.Droid.Services
         public void Play()
         {
             MediaPlayer = new MediaPlayer();
-            MediaPlayer.SetAudioStreamType(Stream.Music);
-            MediaPlayer.SetOnErrorListener(this);
+            var attributesBuilder = new AudioAttributes.Builder();
+            attributesBuilder.SetLegacyStreamType(Stream.Music);
+            attributesBuilder.SetContentType(AudioContentType.Music);
+            MediaPlayer.SetAudioAttributes(attributesBuilder.Build()); MediaPlayer.SetOnErrorListener(this);
             MediaPlayer.SetOnInfoListener(this);
             MediaPlayer.SetOnPreparedListener(this);
             MediaPlayer.SetDataSource("http://stream.intronic.nl/rgrfm_oldiesradio");

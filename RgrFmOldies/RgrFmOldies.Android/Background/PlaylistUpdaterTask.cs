@@ -1,13 +1,13 @@
 ﻿using Android.OS;
-using RgrFmOldies.Droid.Models;
 using RgrFmOldies.Droid.Services;
 using System.Threading.Tasks;
+using RgrFm.Models;
 
 namespace RgrFmOldies.Droid.Background
 {
-    public class PlaylistUpdaterTask : AsyncTask<object, object, Task<PlaylistItem>>
+    public class PlaylistUpdaterTask : AsyncTask<object, object, Task<PlaylistFeed>>
     {
-        protected override async Task<PlaylistItem> RunInBackground(params object[] @params)
+        protected override async Task<PlaylistFeed> RunInBackground(params object[] @params)
         {
             return await RgrOldiesWebService.GetPlaylistAsync();
         }

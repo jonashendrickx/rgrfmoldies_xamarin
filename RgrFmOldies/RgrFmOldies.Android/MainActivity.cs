@@ -9,13 +9,12 @@ using Android.Content.PM;
 using RgrFmOldies.Droid.Common;
 using System.Timers;
 using System.Threading.Tasks;
+using RgrFm.Models;
 using RgrFmOldies.Droid.Background;
-using RgrFmOldies.Droid.Models;
-using System;
 
 namespace RgrFmOldies.Droid
 {
-	[Activity (Label = "RGR Oldies", MainLauncher = true, Icon = "@drawable/icon", ConfigurationChanges = ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
+	[Activity (Label = "RGR Oldies", MainLauncher = true, Icon = "@drawable/icon", ConfigurationChanges = ConfigChanges.KeyboardHidden | ConfigChanges.Orientation | ConfigChanges.ScreenSize, Theme = "@android:style/Theme.Holo.NoActionBar.Fullscreen")]
 	public class MainActivity : Activity, IServiceConnection, View.IOnClickListener
     {
         private Timer _timer;
@@ -25,8 +24,9 @@ namespace RgrFmOldies.Droid
         private MusicPlayerBroadCastReceiver _broadcastReceiver = new MusicPlayerBroadCastReceiver();
 
         private ImageButton _btnPlay;
-        private TextView _textViewArtist;
-        private TextView _textViewTitle;
+        private TextView _textViewSong1;
+        private TextView _textViewSong2;
+        private TextView _textViewSong3;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -38,8 +38,9 @@ namespace RgrFmOldies.Droid
             _btnPlay = (ImageButton)FindViewById(Resource.Id.playButton);
             _btnPlay.SetOnClickListener(this);
 
-            _textViewArtist = (TextView)FindViewById(Resource.Id.artistTextView);
-            _textViewTitle = (TextView)FindViewById(Resource.Id.titleTextView);
+            _textViewSong1 = (TextView)FindViewById(Resource.Id.textViewSong1);
+            _textViewSong2 = (TextView)FindViewById(Resource.Id.textViewSong2);
+            _textViewSong3 = (TextView)FindViewById(Resource.Id.textViewSong3);
 
             DoBindService();
             InitServiceListener();
@@ -125,6 +126,8 @@ namespace RgrFmOldies.Droid
                 if (_musicPlayerService.MediaPlayer == null && Connectivity.IsConnected(ApplicationContext))
                 {
                     _btnPlay.SetImageResource(Resource.Drawable.ic_pause_circle_outline_white_48dp);
+                    Intent intent = new Intent(this, typeof(MusicPlayerService));
+                    _musicPlayerService.StartService(intent);
                     _musicPlayerService.Play();
                 }
                 else if (_musicPlayerService.MediaPlayer != null)
@@ -155,13 +158,14 @@ namespace RgrFmOldies.Droid
             _timer.Enabled = true;
         }
 
-        public void OnTaskComplete(PlaylistItem playlist)
+        public void OnTaskComplete(PlaylistFeed playlist)
         {
             if (playlist == null) return;
             RunOnUiThread(() =>
             {
-                _textViewArtist.Text = playlist.Artist;
-                _textViewTitle.Text = playlist.Title;
+                _textViewSong1.Text = $"{playlist.Playlist[0].Artist} - {playlist.Playlist[0].Title}";
+                _textViewSong2.Text = $"{playlist.Playlist[1].Artist} - {playlist.Playlist[1].Title}";
+                _textViewSong3.Text = $"{playlist.Playlist[2].Artist} - {playlist.Playlist[2].Title}";
             });
         }
     }
